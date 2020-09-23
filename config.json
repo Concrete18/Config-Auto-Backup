@@ -1,10 +1,15 @@
 {
     "settings":
         {
-            "ph"
-        }
+            "backup_destination":"D:/Google Drive/Coding/Python/Scripts/Super-Backup/Test Destination",
+            "backup_redundancy":3
+        },
     "backup_targets":
         {
-            "example1":"example locaiton"
+            "Git_Config":"C:/Users/Michael/.gitconfig",
+            "Bash_Config":"C:/Users/Michael/.bashrc",
+            "Bash_Profile":"C:/Users/Michael/.bash_profile",
+            "TriggerCMD":"C:/AHKScripts",
+            "Windows_Terminal":"D:/Google Drive/Coding/Windows Terminal/settings.json"
         }
 }
