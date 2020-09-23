@@ -1,0 +1,10 @@
+{
+    "settings":
+        {
+            "ph"
+        }
+    "backup_targets":
+        {
+            "example1":"example locaiton"
+        }
+}
