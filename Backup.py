@@ -1,7 +1,7 @@
 from tkinter import messagebox, filedialog
+import datetime as dt
 import shutil
 import json
-import datetime as dt
 import os
 
 class Backup_App:
@@ -33,7 +33,7 @@ class Backup_App:
 
     def Backup(self):
         '''Backups up the entered folder.'''
-        current_time = dt.datetime.now().strftime("%d-%m-%y %H-%M")
+        current_time = dt.datetime.now().strftime("Date %m-%d-%y Time %H-%M-%S")
         dest = os.path.join(self.backup_location, current_time)
         os.mkdir(dest)
         for item, loc in self.backup_targets.items():
@@ -51,11 +51,4 @@ class Backup_App:
 
     def Restore(self):
         '''Asks what you want to restore then restores it to its set location.'''
-        pass
-
-
-if __name__ == '__main__':
-    Configs = Backup_App()
-    # input('Would you like to back up your files?')
-    Configs.Backup()
-    Configs.Delete_Oldest()
+        print('Restore Function Incomplete')
