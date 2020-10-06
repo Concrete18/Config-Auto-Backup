@@ -1,7 +1,7 @@
 {
     "settings":
         {
-            "backup_destination":"D:/Google Drive/Coding/Python/Scripts/Super-Backup/Test Destination",
+            "backup_destination":"D:/Google Drive/Backups/Python Program Backups",
             "backup_redundancy":3
         },
     "backup_targets":

@@ -18,21 +18,20 @@ class Backup_App:
         '''Deletest the oldest backups so only the newest specified in backup_redundancy is left.'''
         backup_list = []
         dir = self.backup_location
-        for file in os.listdir(dir):
-            file = os.path.join(dir, file)
-            backup_list.append(file)
-        if len(backup_list) < 4:
+        for file in os.scandir(dir):
+            backup_list.append(file.path)
+        if len(backup_list) <= self.backup_redundancy:
             print(f'{self.backup_redundancy} or Less Backups.')
             return
         else:
-            print(f'More than {self.backup_redundancy} backups.\nDeleting oldest now.')
+            print(f'More than {self.backup_redundancy} backups.\nDeleting oldest backups now.')
             sorted_list = sorted(backup_list, key=os.path.getctime, reverse=True)
             for i in range(self.backup_redundancy, len(backup_list)):
                 shutil.rmtree(sorted_list[i])
 
 
     def Backup(self):
-        '''Backups up the entered folder.'''
+        '''Runs a back up of all files and folders from the config.json.'''
         current_time = dt.datetime.now().strftime("Date %m-%d-%y Time %H-%M-%S")
         dest = os.path.join(self.backup_location, current_time)
         os.mkdir(dest)
