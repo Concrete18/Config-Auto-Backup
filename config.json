@@ -10,6 +10,7 @@
             "Bash_Config":"C:/Users/Michael/.bashrc",
             "Bash_Profile":"C:/Users/Michael/.bash_profile",
             "TriggerCMD":"C:/AHKScripts",
-            "Windows_Terminal":"D:/Google Drive/Coding/Windows Terminal/settings.json"
+            "Windows_Terminal":"C:/Users/Michael/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json",
+            "Fake_Path":"C:/fake"
         }
 }
