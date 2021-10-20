@@ -1,7 +1,7 @@
 {
     "settings":
         {
-            "backup_destination":"D:/Google Drive/Backups/Python Program Backups",
+            "backup_destination":"Backup Folder",
             "backup_redundancy":3
         },
     "backup_targets":
@@ -10,7 +10,6 @@
             "Bash_Config":"C:/Users/Michael/.bashrc",
             "Bash_Profile":"C:/Users/Michael/.bash_profile",
             "TriggerCMD":"C:/AHKScripts",
-            "Windows_Terminal":"C:/Users/Michael/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json",
-            "Fake_Path":"C:/fake"
+            "Windows_Terminal":"C:/Users/Michael/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json"
         }
 }
