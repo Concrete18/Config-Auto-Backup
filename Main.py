@@ -26,34 +26,30 @@ class Backup_Restore:
             else:
                 missing_entries.append(target)
         if len(missing_entries) > 0:
-            print('Missing entries found:\n', ", ".join(missing_entries))
-
+            print(f'Missing entries found:\n{", ".join(missing_entries)}')
 
     def delete_oldest(self, folder, debug=False):
         '''
         Deletest the oldest backups so only the newest specified in backup_redundancy is left.
         '''
-        backup_list = []
-        for file in os.scandir(folder):
-            backup_list.append(file.path)
-        if len(backup_list) > self.backup_redundancy:
+        backup_list = [file.path for file in os.scandir(folder)]
+        total_backups = len(backup_list)
+        if total_backups > self.backup_redundancy:
             if debug:
                 print(f'More than {self.backup_redundancy} backups.\nDeleting oldest backups now.')
             sorted_list = sorted(backup_list, key=os.path.getctime, reverse=True)
-            for i in range(self.backup_redundancy, len(backup_list)):
+            for i in range(self.backup_redundancy, total_backups):
                 shutil.rmtree(sorted_list[i])
-        else:
-            if debug:
-                print(f'{self.backup_redundancy} or Less Backups.')
+        elif debug:
+            print(f'{self.backup_redundancy} or Less Backups.')
     
-
     def open_config(self):
         '''
         Opens the config file for editing.
         '''
         os.startfile(self.config_path)
 
-    
+
     def hash_file(self, file):
         '''
         ph
@@ -68,23 +64,14 @@ class Backup_Restore:
                 md5.update(data)
         return md5.hexdigest()
 
-
-    def hash_check(self, dir_file1, dir_file2):
+    def get_hash(self, dir_file):
         '''
-        Checks the hash of the two directories or files to see if they are the different.
+        Gets hash of the given file or folder..
         '''
-        try:
-            if os.path.isdir(dir_file1):
-                hash1 = dirhash(dir_file1, 'md5')
-                hash2 = dirhash(dir_file2, 'md5')
-            else:
-                hash1 = self.hash_file(dir_file1)
-                hash2 = self.hash_file(dir_file2)
-            return hash1 == hash2
-        except PermissionError:
-            print(f'Hash Check failed for {dir_file1}')
-            return True
-
+        if os.path.isdir(dir_file):
+            return dirhash(dir_file, 'md5')
+        else:
+            return self.hash_file(dir_file)
 
     def add(self):
         '''
@@ -92,8 +79,7 @@ class Backup_Restore:
         '''
         print('WIP Feature')
 
-
-    def backup(self, check_hash=False):
+    def backup(self, check_hash=True):
         '''
         Runs a back up of all files and folders from the config.json that exist and have been changed.
         '''
@@ -101,18 +87,22 @@ class Backup_Restore:
         if not os.path.isdir(self.backup_location):
             os.mkdir(self.backup_location)
         for target, path in self.found_paths.items():
+            current_hash = self.get_hash(path)
             # gets last backup location and checks its hash with the current path hash
-            if len(os.listdir(self.backup_location)) > 0 and check_hash:
-                backup_list = []
+            if os.path.isdir(os.path.join(self.backup_location, target)) and check_hash:
                 backups = os.scandir(os.path.join(self.backup_location, target))
-                for file in backups:
-                    backup_list.append(file.path)
+                backup_list = [file.path for file in backups]
                 last_backup = sorted(backup_list, key=os.path.getctime, reverse=True)[0]
-                if self.hash_check(path, last_backup):
+                # TODO check if sorting works even if the hash is different for each.
+                print(backup_list)
+                print(last_backup)
+                previous_hash = last_backup.split(' ')[-1]
+                if current_hash == previous_hash:
+                    print(f'\nSkipping {target} due to no changes since last backup.')
                     continue
             # copies to backup folder
             current_time = dt.datetime.now().strftime("Date %m-%d-%y Time %H-%M-%S")
-            dest = os.path.join(self.backup_location, target, current_time)
+            dest = os.path.join(self.backup_location, target, f'{current_time} {current_hash}')
             if os.path.isfile(path):
                 if not os.path.isdir(dest):
                     os.makedirs(dest)
@@ -122,7 +112,6 @@ class Backup_Restore:
             backup_path = os.path.join(self.backup_location, target)
             self.delete_oldest(backup_path)
             print(f'\nBacked Up: {target} from {path}')
-
 
     def restore(self):
         '''
@@ -153,8 +142,7 @@ class Main:
                 # TODO add new file
                 self.App.add()
             else:
-                print('Unknown Response')
-                input()
+                input('Unknown Response')
         except KeyboardInterrupt:
             exit()
 
