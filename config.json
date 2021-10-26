@@ -2,7 +2,8 @@
     "settings":
         {
             "backup_destination":"Backup Folder",
-            "backup_redundancy":3
+            "backup_redundancy":3,
+            "backup_only":true
         },
     "backup_targets":
         {
