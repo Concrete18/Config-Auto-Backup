@@ -1,10 +1,10 @@
-import shutil, os, json, hashlib, time
+import shutil, os, subprocess, json, hashlib, time, math
 from checksumdir import dirhash
 import datetime as dt
 import time
 
 
-class Action:
+class FileClass:
 
     config_path = 'config.json'
     with open('config.json') as json_file:
@@ -55,6 +55,28 @@ class Action:
             print(f'Missing entries found:\n{", ".join(missing_entries)}')
         else:
             print('All entries found.')
+
+    @staticmethod
+    def convert_size(directory):
+        '''
+        Converts size of `directory` to best fitting unit of measure.
+        '''
+        total_size = 0
+        for path, dirs, files in os.walk(directory):
+            for f in files:
+                fp = os.path.join(path, f)
+                total_size += os.path.getsize(fp)
+        if total_size > 0:
+            size_name = ("B", "KB", "MB", "GB", "TB")
+            try:
+                i = int(math.floor(math.log(total_size, 1024)))
+                p = math.pow(1024, i)
+                s = round(total_size / p, 2)
+                return f'{s} {size_name[i]}'
+            except ValueError:
+                return '0 bits'
+        else:
+            return '0 bits'
 
     def delete_oldest(self, folder, debug=False):
         '''
@@ -131,6 +153,8 @@ class Action:
             # copies to backup folder
             current_time = dt.datetime.now().strftime("Date %m-%d-%y Time %H-%M-%S")
             dest = os.path.join(self.backup_location, target, f'{current_time} Hash {current_hash}')
+            if len(backed_up) == 0:
+                print('Backing up files.')
             if os.path.isfile(path):
                 if not os.path.isdir(dest):
                     os.makedirs(dest)
@@ -143,7 +167,7 @@ class Action:
         if len(backed_up) > 0:
             print(f'\nBacked up:\n{", ".join(backed_up)}')
         if len(skipped) > 0:
-            print(f'\nSkipped due to same hash:\n{", ".join(skipped)}')
+            print(f'\nNo changes since last back up:\n{", ".join(skipped)}')
 
     def restore(self):
         '''
@@ -153,35 +177,36 @@ class Action:
         print('Restore Function Incomplete')
 
 
-class Main:
 
-    Action = Action()
-
-
-    def run(self):
-        '''
-        Runs the entire program.
-        '''
-        try:
-            title = 'Multi Backup System'
-            print(title)
-            self.Action.path_check()
-            if self.Action.backup_only:
-                response = 1
-            else:
-                response = int(input('\n\nWhat would you like to do?\n1. Backup\n2. Restore\n') or 1)
-            if response == 1:
-                self.Action.backup()
-            elif response == 2:
-                self.Action.restore()
-            elif response == 3:
-                self.Action.add()
-            else:
-                input('Unknown Response')
-            print(f'\nFinished running {title}')
-        except KeyboardInterrupt:
-            exit()
+def run():
+    '''
+    Runs the entire program.
+    '''
+    File = FileClass()
+    try:
+        title = 'Multi Backup System'
+        print(title)
+        print(f'Size of Backup: {File.convert_size(File.backup_location)}')
+        File.path_check()
+        if File.backup_only:
+            response = 1
+        else:
+            response = int(input('\n\nWhat would you like to do?\n1. Backup\n2. Restore\n') or 1)
+        if response == 1:
+            File.backup()
+        elif response == 2:
+            File.restore()
+        elif response == 3:
+            File.add()
+        else:
+            input('Unknown Response')
+        print(f'\nFinished running {title}')
+    except KeyboardInterrupt:
+        exit()
+    response = input('\nType 1 to Open Backup Folder\nPress Enter to Close\n')
+    if response == '1':
+        subprocess.Popen(f'explorer "{File.backup_location}"')
 
 
 if __name__ == '__main__':
-    Main().run()
+    run()
