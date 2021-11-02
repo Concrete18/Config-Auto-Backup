@@ -20,7 +20,9 @@ Backups only occur if the current file/folder has a different hash compared to t
 
 Run the program using the following code.
 
-'''python Main.py'''
+```bash
+python Main.py
+```
 
 It will run the script create your config if you did not already make your own based on the below example. If a config is created for you, it will open it in an editor so you can set up your settings as you want.
 
