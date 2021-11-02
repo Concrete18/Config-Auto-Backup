@@ -10,6 +10,28 @@ Backups only occur if the current file/folder has a different hash compared to t
 * Keeps the last 3(configurable) backups to be sure that you can restore to your last working version.
 * Hash checks allow you to backup anytime you want to backup a file without worrying about have 3 identical redundant backups for other entries.
 
+## Techniques Used
+
+* Hashing so backups are only run when changes were made to the file/folder.
+
+---
+
+## Set Up
+
+Run the program using the following code.
+
+'''python Main.py'''
+
+It will run the script create your config if you did not already make your own based on the below example. If a config is created for you, it will open it in an editor so you can set up your settings as you want.
+
+```json
+{
+    "backup_destination": "<destination path for your backups>",
+    "backup_redundancy": "<max number of backups to retain>",
+    "backup_only": true Ignore this for now
+}
+```
+
 ## config example
 
 ```json
