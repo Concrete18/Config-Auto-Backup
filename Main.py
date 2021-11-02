@@ -4,15 +4,69 @@ import datetime as dt
 import time
 
 
-class FileClass:
+class Config:
+    '''
+    Config load and creation class.
+    '''
 
-    config_path = 'config.json'
-    with open('config.json') as json_file:
-        data = json.load(json_file)
-    backup_location = data['settings']['backup_destination']
-    backup_redundancy = data['settings']['backup_redundancy']
-    backup_only = data['settings']['backup_only']
-    backup_targets = data['backup_targets']
+    def load(self):
+        self.config_path = 'config.json'
+        if os.path.exists(os.path.join(os.getcwd(), self.config_path)):
+            with open(self.config_path) as json_file:
+                data = json.load(json_file)
+            backup_location = data['settings']['backup_destination']
+            backup_redundancy = data['settings']['backup_redundancy']
+            backup_only = data['settings']['backup_only']
+            backup_targets = data['backup_targets']
+            return backup_location, backup_redundancy, backup_only, backup_targets
+        else:
+            data = {
+                "settings":
+                    {
+                        "backup_destination": "Backup Folder",
+                        "backup_redundancy": 3,
+                        "backup_only": True
+                    },
+                "backup_targets":
+                    {
+                        "Example_Path": "README.md",
+                    }
+            }
+            self.save_to_json(data, self.config_path)
+            subprocess.Popen(["notepad.exe", self.config_path])
+            input('Set up your config save.\nPress Enter when finished.\n')
+            backup_location = data['settings']['backup_destination']
+            backup_redundancy = data['settings']['backup_redundancy']
+            backup_only = data['settings']['backup_only']
+            backup_targets = data['backup_targets']
+            return backup_location, backup_redundancy, backup_only, backup_targets
+    
+    @staticmethod
+    def save_to_json(data, filename):
+        '''
+        Saves data into json format with the given filename.
+        '''
+        json_object = json.dumps(data, indent = 4)
+        with open(filename, "w") as outfile:
+            outfile.write(json_object)
+
+    def open_config(self):
+        '''
+        Opens the config file for editing.
+        '''
+        os.startfile(self.config_path)
+
+
+class FileClass:
+    '''
+    File Access Class
+    '''
+
+    def __init__(self, backup_location, backup_redundancy, backup_only, backup_targets) -> None:
+        self.backup_location = backup_location
+        self.backup_redundancy = backup_redundancy
+        self.backup_only = backup_only
+        self.backup_targets = backup_targets
 
 
     def log_return(func):
@@ -92,12 +146,6 @@ class FileClass:
                 shutil.rmtree(sorted_list[i])
         elif debug:
             print(f'{self.backup_redundancy} or Less Backups.')
-    
-    def open_config(self):
-        '''
-        Opens the config file for editing.
-        '''
-        os.startfile(self.config_path)
 
     def hash_file(self, file_path):
         '''
@@ -177,14 +225,17 @@ class FileClass:
         print('Restore Function Incomplete')
 
 
-
 def run():
     '''
     Runs the entire program.
     '''
-    File = FileClass()
     try:
         title = 'Multi Backup System'
+        # loads config
+        config = Config()
+        backup_location, backup_redundancy, backup_only, backup_targets = config.load()
+        # sets up file object
+        File = FileClass(backup_location, backup_redundancy, backup_only, backup_targets)
         print(title)
         print(f'Size of Backup: {File.convert_size(File.backup_location)}')
         File.path_check()
