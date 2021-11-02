@@ -4,20 +4,21 @@ import datetime as dt
 import time
 
 
-class Config:
+class ConfigClass:
     '''
     Config load and creation class.
     '''
+
 
     def load(self):
         self.config_path = 'config.json'
         if os.path.exists(os.path.join(os.getcwd(), self.config_path)):
             with open(self.config_path) as json_file:
-                data = json.load(json_file)
-            backup_location = data['settings']['backup_destination']
-            backup_redundancy = data['settings']['backup_redundancy']
-            backup_only = data['settings']['backup_only']
-            backup_targets = data['backup_targets']
+                self.data = json.load(json_file)
+            backup_location = self.data['settings']['backup_destination']
+            backup_redundancy = self.data['settings']['backup_redundancy']
+            backup_only = self.data['settings']['backup_only']
+            backup_targets = self.data['backup_targets']
             return backup_location, backup_redundancy, backup_only, backup_targets
         else:
             data = {
@@ -32,7 +33,7 @@ class Config:
                         "Example_Path": "README.md",
                     }
             }
-            self.save_to_json(data, self.config_path)
+            self.save_to_json(data)
             subprocess.Popen(["notepad.exe", self.config_path])
             input('Set up your config save.\nPress Enter when finished.\n')
             backup_location = data['settings']['backup_destination']
@@ -41,16 +42,23 @@ class Config:
             backup_targets = data['backup_targets']
             return backup_location, backup_redundancy, backup_only, backup_targets
     
-    @staticmethod
-    def save_to_json(data, filename):
+    def save_to_json(self, data):
         '''
         Saves data into json format with the given filename.
         '''
         json_object = json.dumps(data, indent = 4)
-        with open(filename, "w") as outfile:
+        with open(self.config_path, "w") as outfile:
             outfile.write(json_object)
+    
+    def add_entry(self, entry_name, entry_path):
+        '''
+        Adds a new entry to the config with the given `entry_name` and `entry_path`.
+        '''
+        self.data['backup_targets'][entry_name] = entry_path
+        self.save_to_json(self.data)
+        print(f'\nAdded {entry_name} to the config with the following path.\n{entry_path}')
 
-    def open_config(self):
+    def open(self):
         '''
         Opens the config file for editing.
         '''
@@ -170,13 +178,6 @@ class FileClass:
         else:
             return self.hash_file(dir_file)
 
-    def add(self):
-        '''
-        Adds a new entry to the backup system.
-        '''
-        # TODO finish add
-        print('WIP Feature')
-
     # @benchmark
     def backup(self, check_hash=True):
         '''
@@ -222,7 +223,9 @@ class FileClass:
         Asks what you want to restore then restores it to its set location.
         '''
         # TODO finish restore
-        print('Restore Function Incomplete')
+        print('\nWhat do you want to restore?\nType the number for the backup.')
+        backups = [f'{index}: {entry}' for index, entry in enumerate(self.backup_targets.keys())]
+        input("\n".join(backups))
 
 
 def run():
@@ -232,23 +235,28 @@ def run():
     try:
         title = 'Multi Backup System'
         # loads config
-        config = Config()
-        backup_location, backup_redundancy, backup_only, backup_targets = config.load()
+        Config = ConfigClass()
+        backup_location, backup_redundancy, backup_only, backup_targets = Config.load()
         # sets up file object
         File = FileClass(backup_location, backup_redundancy, backup_only, backup_targets)
         print(title)
         print(f'Size of Backup: {File.convert_size(File.backup_location)}')
         File.path_check()
         if File.backup_only:
-            response = 1
+            response = 2
         else:
-            response = int(input('\n\nWhat would you like to do?\n1. Backup\n2. Restore\n') or 1)
+            response = int(input('\n\nWhat would you like to do?\n1. Backup\n2. Restore\n3. Add\n4. Open Config\n') or 1)
         if response == 1:
             File.backup()
         elif response == 2:
             File.restore()
         elif response == 3:
-            File.add()
+            name = input('\nWhat is the name of your new file/folder you want to backup?')
+            path = input('\nWhat is the path that will be backed up?')
+            Config.add_entry(name, path)
+            print('If you want to add more at one time, edit the config file directly.')
+        elif response == 4:
+            Config.open()
         else:
             input('Unknown Response')
         print(f'\nFinished running {title}')
