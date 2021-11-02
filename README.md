@@ -44,7 +44,7 @@ It will run the script create your config if you did not already make your own b
             "backup_redundancy":3,
             "backup_only":true
         },
-    "backup_targets":
+    "backup_entries":
         {
             "Git_Config":"C:/Users/Michael/.gitconfig",
             "Bash_Config":"C:/Users/Michael/.bashrc",

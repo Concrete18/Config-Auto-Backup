@@ -18,8 +18,8 @@ class ConfigClass:
             backup_location = self.data['settings']['backup_destination']
             backup_redundancy = self.data['settings']['backup_redundancy']
             backup_only = self.data['settings']['backup_only']
-            backup_targets = self.data['backup_targets']
-            return backup_location, backup_redundancy, backup_only, backup_targets
+            backup_entries = self.data['backup_entries']
+            return backup_location, backup_redundancy, backup_only, backup_entries
         else:
             data = {
                 "settings":
@@ -28,7 +28,7 @@ class ConfigClass:
                         "backup_redundancy": 3,
                         "backup_only": True
                     },
-                "backup_targets":
+                "backup_entries":
                     {
                         "Example_Path": "README.md",
                     }
@@ -39,8 +39,8 @@ class ConfigClass:
             backup_location = data['settings']['backup_destination']
             backup_redundancy = data['settings']['backup_redundancy']
             backup_only = data['settings']['backup_only']
-            backup_targets = data['backup_targets']
-            return backup_location, backup_redundancy, backup_only, backup_targets
+            backup_entries = data['backup_entries']
+            return backup_location, backup_redundancy, backup_only, backup_entries
     
     def save_to_json(self, data):
         '''
@@ -54,7 +54,7 @@ class ConfigClass:
         '''
         Adds a new entry to the config with the given `entry_name` and `entry_path`.
         '''
-        self.data['backup_targets'][entry_name] = entry_path
+        self.data['backup_entries'][entry_name] = entry_path
         self.save_to_json(self.data)
         print(f'\nAdded {entry_name} to the config with the following path.\n{entry_path}')
 
@@ -70,11 +70,11 @@ class FileClass:
     File Access Class
     '''
 
-    def __init__(self, backup_location, backup_redundancy, backup_only, backup_targets) -> None:
+    def __init__(self, backup_location, backup_redundancy, backup_only, backup_entries) -> None:
         self.backup_location = backup_location
         self.backup_redundancy = backup_redundancy
         self.backup_only = backup_only
-        self.backup_targets = backup_targets
+        self.backup_entries = backup_entries
 
 
     def log_return(func):
@@ -108,7 +108,7 @@ class FileClass:
         print('\nChecking for missing target paths:')
         self.found_paths = {}
         missing_entries = []
-        for target, path in self.backup_targets.items():
+        for target, path in self.backup_entries.items():
             if os.path.exists(path):
                 self.found_paths[target] = path
             else:
@@ -224,7 +224,7 @@ class FileClass:
         '''
         # TODO finish restore
         print('\nWhat do you want to restore?\nType the number for the backup.')
-        backups = [f'{index}: {entry}' for index, entry in enumerate(self.backup_targets.keys())]
+        backups = [f'{index}: {entry}' for index, entry in enumerate(self.backup_entries.keys())]
         input("\n".join(backups))
 
 
@@ -236,14 +236,14 @@ def run():
         title = 'Multi Backup System'
         # loads config
         Config = ConfigClass()
-        backup_location, backup_redundancy, backup_only, backup_targets = Config.load()
+        backup_location, backup_redundancy, backup_only, backup_entries = Config.load()
         # sets up file object
-        File = FileClass(backup_location, backup_redundancy, backup_only, backup_targets)
+        File = FileClass(backup_location, backup_redundancy, backup_only, backup_entries)
         print(title)
         print(f'Size of Backup: {File.convert_size(File.backup_location)}')
         File.path_check()
         if File.backup_only:
-            response = 2
+            response = 1
         else:
             response = int(input('\n\nWhat would you like to do?\n1. Backup\n2. Restore\n3. Add\n4. Open Config\n') or 1)
         if response == 1:
